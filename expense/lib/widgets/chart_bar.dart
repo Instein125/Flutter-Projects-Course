@@ -11,46 +11,51 @@ class Bar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 20,
-          child: FittedBox(child: Text(spendAmt.toStringAsFixed(0))),
-        ),
-        SizedBox(
-          height: 4,
-        ),
-        Container(
-          height: 100,
-          width: 20,
-          child: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 1,
-                  ),
-                  color: Color.fromRGBO(220, 220, 220, 1),
-                ),
-              ),
-              FractionallySizedBox(
-                heightFactor: perSpendAmt,
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Theme.of(context).primaryColorDark),
-                ),
-              )
-            ],
+    return LayoutBuilder(builder: (ctx, contraints) {
+      return Column(
+        children: [
+          Container(
+            height: contraints.maxHeight * 0.15,
+            child: FittedBox(child: Text(spendAmt.toStringAsFixed(0))),
           ),
-        ),
-        SizedBox(
-          height: 4,
-        ),
-        Text(label),
-      ],
-    );
+          SizedBox(
+            height: contraints.maxHeight * 0.05,
+          ),
+          Container(
+            height: contraints.maxHeight * 0.6,
+            width: contraints.maxWidth * 0.25,
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1,
+                    ),
+                    color: Color.fromRGBO(220, 220, 220, 1),
+                  ),
+                ),
+                FractionallySizedBox(
+                  heightFactor: perSpendAmt,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Theme.of(context).primaryColorDark),
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: contraints.maxHeight * 0.05,
+          ),
+          Container(
+            height: contraints.maxHeight * 0.15,
+            child: FittedBox(child: Text(label)),
+          ),
+        ],
+      );
+    });
   }
 }

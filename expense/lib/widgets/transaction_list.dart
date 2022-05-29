@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, sized_box_for_whitespace, prefer_const_constructors
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, sized_box_for_whitespace, prefer_const_constructors, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -14,29 +14,28 @@ class Transactions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return trans.isEmpty
-        ? Column(
-            children: [
-              Text(
-                'No transaction yet...',
-                style: Theme.of(context).textTheme.headline6,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                height: 200,
-                child: Image.asset(
-                  'assets/images/waiting.png',
-                  fit: BoxFit.cover,
-                ),
-              )
-            ],
-          )
-        : Container(
-            height: 356,
-            child: ListView.builder(
-              itemBuilder: (bct, index) {
-                return Card(
+        ? LayoutBuilder(
+            builder: ((context, constraints) => Column(
+                  children: [
+                    Text(
+                      'No transaction yet...',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      height: constraints.maxHeight * 0.7,
+                      child: Image.asset(
+                        'assets/images/waiting.png',
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  ],
+                )))
+        : ListView.builder(
+            itemBuilder: (bct, index) {
+              return Card(
                   elevation: 5,
                   margin: EdgeInsets.all(10),
                   color: Theme.of(context).canvasColor,
@@ -72,17 +71,25 @@ class Transactions extends StatelessWidget {
                         ),
                       ),
                     ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        Icons.delete,
-                        color: Theme.of(context).errorColor,
-                      ),
-                      onPressed: () => delete(trans[index].id),
-                    ),
-                  ),
-                );
-              },
-              itemCount: trans.length,
-            ));
+                    trailing: MediaQuery.of(context).size.width < 500
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: Theme.of(context).errorColor,
+                            ),
+                            onPressed: () => delete(trans[index].id),
+                          )
+                        : FlatButton.icon(
+                            onPressed: () => delete(
+                              trans[index].id,
+                            ),
+                            icon: Icon(Icons.delete),
+                            label: Text('Delete'),
+                            textColor: Theme.of(context).errorColor,
+                          ),
+                  ));
+            },
+            itemCount: trans.length,
+          );
   }
 }

@@ -1,14 +1,24 @@
-// ignore_for_file: deprecated_member_use, prefer_const_constructors, prefer_const_constructors_in_immutables
+// ignore_for_file: deprecated_member_use, prefer_const_constructors, prefer_const_constructors_in_immutables, sized_box_for_whitespace
+import 'dart:io';
 
 import 'package:expense/widgets/chart.dart';
 import 'package:expense/widgets/new_transaction.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+// import 'package:flutter/services.dart';
 
 import './models/transaction.dart';
 import './widgets/transaction_list.dart';
 import './widgets/chart.dart';
 
 void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitUp,
+  //   DeviceOrientation.portraitDown,
+  // ]);     This is used to set the orientation of the app to portrait only.
+  // We have to import services.dart for this.
+  //We should use flutter binding to ensure it work on all the devices.
   runApp(const MyApp());
 }
 
@@ -98,6 +108,8 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
+  bool _showChart = false;
+
   List<Transaction> get _recentTrans {
     return _transactions.where((element) {
       return element.date.isAfter(
@@ -110,37 +122,116 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // resizeToAvoidBottomInset:
-      //     false, //this is done to avoid bottom overflow when keyboard pops up.
-      appBar: AppBar(
-        // backgroundColor: Theme.of(context).backgroundColor,
-        title: const Text(
-          'Expense Report',
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _startNew(context),
-            icon: Icon(Icons.add),
+    final mediaQuery = MediaQuery.of(context);
+    final _isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final dynamic appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: const Text(
+              'Expense Report',
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => _startNew(context),
+                  child: Icon(CupertinoIcons.add),
+                )
+              ],
+            ),
           )
-        ],
-      ),
-      body: Column(
+        : AppBar(
+            // backgroundColor: Theme.of(context).backgroundColor,
+            title: const Text(
+              'Expense Report',
+            ),
+            actions: [
+              IconButton(
+                onPressed: () => _startNew(context),
+                icon: Icon(Icons.add),
+              )
+            ],
+          );
+    final txWidget = Container(
+      height: (mediaQuery.size.height -
+              appBar.preferredSize.height -
+              mediaQuery.padding.top) *
+          0.55,
+      child: Transactions(_transactions, _deleteTransaction),
+    );
+    final pagebody = SafeArea(
+      child: Column(
           // ignore: prefer_const_literals_to_create_immutables
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(10),
-              child: Chart(_recentTrans),
-            ),
-            Transactions(_transactions, _deleteTransaction),
+            if (_isLandscape)
+              Container(
+                height: (mediaQuery.size.height -
+                        appBar.preferredSize.height -
+                        mediaQuery.padding.top) *
+                    0.1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Show Chart',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                    Switch.adaptive(
+                        value: _showChart,
+                        activeColor: Theme.of(context).primaryColor,
+                        onChanged: (val) {
+                          setState(() {
+                            _showChart = val;
+                          });
+                        })
+                  ],
+                ),
+              ),
+            if (!_isLandscape)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.all(10),
+                height: (mediaQuery.size.height -
+                        appBar.preferredSize.height -
+                        mediaQuery.padding.top) *
+                    0.35,
+                child: Chart(_recentTrans),
+              ),
+            if (!_isLandscape) txWidget,
+            if (_isLandscape)
+              _showChart
+                  ? Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.all(10),
+                      height: (mediaQuery.size.height -
+                              appBar.preferredSize.height -
+                              mediaQuery.padding.top) *
+                          0.7,
+                      child: Chart(_recentTrans),
+                    )
+                  : txWidget,
           ]),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _startNew(context),
-        child: Icon(Icons.add),
-      ),
     );
+
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            navigationBar: appBar,
+            child: pagebody,
+          )
+        : Scaffold(
+            // resizeToAvoidBottomInset:
+            //     false, //this is done to avoid bottom overflow when keyboard pops up.
+            appBar: appBar,
+            body: pagebody,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    onPressed: () => _startNew(context),
+                    child: Icon(Icons.add),
+                  ),
+          );
   }
 }
