@@ -60,7 +60,7 @@ class _NewTransactionState extends State<NewTransaction> {
               child:
                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 TextField(
-                  decoration: InputDecoration(labelText: 'Title'),
+                  decoration: const InputDecoration(labelText: 'Title'),
                   controller: titleController, //onChanged: (val) {
                   //  titleInput = val;
                   //},
@@ -69,7 +69,7 @@ class _NewTransactionState extends State<NewTransaction> {
                   //Here _ is used to show we dont care what argument the function takes.
                 ),
                 TextField(
-                  decoration: InputDecoration(labelText: 'Amount'),
+                  decoration: const InputDecoration(labelText: 'Amount'),
                   controller: amtController, //onChanged: (val) {
                   //  amtInput = val;
                   //},
@@ -88,12 +88,12 @@ class _NewTransactionState extends State<NewTransaction> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 20,
                       ),
                       FlatButton(
                         onPressed: _datepicker,
-                        child: Text(
+                        child: const Text(
                           'Choose Date',
                           style: TextStyle(
                               fontFamily: 'Quicksans',
@@ -106,7 +106,7 @@ class _NewTransactionState extends State<NewTransaction> {
                 ),
                 RaisedButton(
                   onPressed: _submit,
-                  child: Text(
+                  child: const Text(
                     'Add transaction',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),

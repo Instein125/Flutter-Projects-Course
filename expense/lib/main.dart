@@ -120,6 +120,46 @@ class _HomepageState extends State<Homepage> {
     }).toList();
   }
 
+  List<Widget> _buildLandscapeContent(
+      MediaQueryData mediaQuery, AppBar appBar, Widget txWidget) {
+    return [
+      Container(
+        height: (mediaQuery.size.height -
+                appBar.preferredSize.height -
+                mediaQuery.padding.top) *
+            0.1,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Show Chart',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Switch.adaptive(
+                value: _showChart,
+                activeColor: Theme.of(context).primaryColor,
+                onChanged: (val) {
+                  setState(() {
+                    _showChart = val;
+                  });
+                })
+          ],
+        ),
+      ),
+      _showChart
+          ? Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(10),
+              height: (mediaQuery.size.height -
+                      appBar.preferredSize.height -
+                      mediaQuery.padding.top) *
+                  0.7,
+              child: Chart(_recentTrans),
+            )
+          : txWidget,
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -158,59 +198,30 @@ class _HomepageState extends State<Homepage> {
           0.55,
       child: Transactions(_transactions, _deleteTransaction),
     );
+
+    List<Widget> _buildProtraitContent() {
+      return [
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.all(10),
+          height: (mediaQuery.size.height -
+                  appBar.preferredSize.height -
+                  mediaQuery.padding.top) *
+              0.35,
+          child: Chart(_recentTrans),
+        ),
+        txWidget
+      ];
+    }
+
     final pagebody = SafeArea(
       child: Column(
           // ignore: prefer_const_literals_to_create_immutables
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_isLandscape)
-              Container(
-                height: (mediaQuery.size.height -
-                        appBar.preferredSize.height -
-                        mediaQuery.padding.top) *
-                    0.1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Show Chart',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    Switch.adaptive(
-                        value: _showChart,
-                        activeColor: Theme.of(context).primaryColor,
-                        onChanged: (val) {
-                          setState(() {
-                            _showChart = val;
-                          });
-                        })
-                  ],
-                ),
-              ),
-            if (!_isLandscape)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(10),
-                height: (mediaQuery.size.height -
-                        appBar.preferredSize.height -
-                        mediaQuery.padding.top) *
-                    0.35,
-                child: Chart(_recentTrans),
-              ),
-            if (!_isLandscape) txWidget,
-            if (_isLandscape)
-              _showChart
-                  ? Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.all(10),
-                      height: (mediaQuery.size.height -
-                              appBar.preferredSize.height -
-                              mediaQuery.padding.top) *
-                          0.7,
-                      child: Chart(_recentTrans),
-                    )
-                  : txWidget,
+              ..._buildLandscapeContent(mediaQuery, appBar, txWidget),
+            if (!_isLandscape) ..._buildProtraitContent(),
           ]),
     );
 
